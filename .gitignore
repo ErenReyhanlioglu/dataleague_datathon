@@ -1,17 +1,12 @@
 # Data
-data/*.parquet
-data/*.csv
+#data/*.parquet
+#data/*.csv
 data/*.feather
 
-# Models
-models/*.pkl
-models/*.joblib
-models/*.h5
-
 # Outputs
-outputs/*.html
-outputs/*.csv
-outputs/*.json
+#outputs/*.html
+#outputs/*.csv
+#outputs/*.json
 
 # Python
 __pycache__/

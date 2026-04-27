@@ -31,7 +31,7 @@ outputs/       → dashboard html, skor csv'leri
 
 ## Architecture
 
-Pipeline sırası: `data_loader → features → model → ensemble → inference/dashboard`
+Pipeline sırası: `data_loader → features → model → ensemble → inference / dashboard`
 
 Detay için `ARCHITECTURE.md` dosyasına bak.
 
@@ -39,17 +39,23 @@ Detay için `ARCHITECTURE.md` dosyasına bak.
 
 ## Key Conventions
 
-- **Analiz birimi author'dur, post değil.** Postlar feature engineering için kullanılır, model author-level aggregate üzerinde çalışır.
-- **Label yoktur.** Bu tamamen unsupervised bir problem. Hiçbir yere `y_train`, `accuracy`, `f1` yazma.
-- **RAM:** Tam parquet ~4-8 GB açılır. EDA için `load_sample(frac=0.1)` kullan. `data_loader.py`'deki dtype optimizasyonu zorunlu.
-- **Model kaydet/yükle:** Sunum sırasında model yeniden eğitilmez. `models/*.pkl` yüklenir.
-- **Temporal split:** Holdout set en yeni tarihler (%20). Shuffle yapma, tarih sırasını koru.
+- **Analiz birimi author'dur, post değil.** Model author-level aggregate üzerinde çalışır.
+- **Label yoktur.** Tamamen unsupervised. `y_train`, `accuracy`, `f1` kullanma.
+- **Veri setindeki sütunlar önceden hesaplanmıştır.** `sentiment`, `main_emotion`,
+  `primary_theme`, `english_keywords` ham metin işleme ürünü değil, hazır feature'dır.
+  Bu sütunları üretme, doğrudan kullan.
+- **Inference ham metin alır.** Jüri author_hash değil metin verecek. `predict()`
+  fonksiyonu bu metinden sentiment/keyword/language hesaplayarak çalışır.
+  Author-level feature yoktur, bu bilinçli bir kısıt.
+- **RAM:** Parquet RAM'de ~4-8 GB açılır. EDA için `load_sample(frac=0.1)` kullan.
+  HDBSCAN'i ham post'a değil, author aggregate'e uygula.
+- **Model kaydet/yükle:** Sunum sırasında model eğitilmez. `models/*.pkl` yüklenir.
 
 ---
 
 ## Critical Notes
 
-- `data/datathonFINAL.parquet` ve `models/*.pkl` `.gitignore`'a ekli olmalı.
-- Inference pipeline (`src/inference.py`) sunum anında tek başına çalışabilir olmalı — dış bağımlılık minimumda tut.
-- Jüri unseen metin verecek: `predict("metin")` çağrısı skor + gerekçe dönmeli.
-- Dashboard sunum öncesinde `outputs/manipulation_map.html` olarak export edilmeli (Dash sunucusu gerekmeden açılabilsin).
+- `data/` ve `models/` klasörleri `.gitignore`'da olmalı.
+- `inference.py` bağımsız çalışabilmeli — sunum anında tek dosya yeterli olmalı.
+- Dashboard sunucu gerektirmeden açılabilmesi için `outputs/manipulation_map.html`
+  olarak export edilmeli.
